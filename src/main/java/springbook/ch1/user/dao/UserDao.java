@@ -13,7 +13,7 @@ public class UserDao {
 
     static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+    public static void main(String[] args) throws SQLException {
         UserDao userDao = new UserDao();
         User user = new User();
         user.setId("kyh12");
@@ -28,8 +28,8 @@ public class UserDao {
 
     }
 
-    public void add(User user) throws SQLException, ClassNotFoundException {
-        Connection con = DriverManager.getConnection(ConnectionConst.URL, ConnectionConst.USERNAME, ConnectionConst.PASSWORD);
+    public void add(User user) throws SQLException {
+        Connection con = getConnection();
         log.info("connection = {}", con.getClass());
 
         PreparedStatement ps = con.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
@@ -44,7 +44,7 @@ public class UserDao {
     }
 
     public User get(String id) throws SQLException {
-        Connection con = DriverManager.getConnection(ConnectionConst.URL, ConnectionConst.USERNAME, ConnectionConst.PASSWORD);
+        Connection con = getConnection();
         PreparedStatement ps = con.prepareStatement("select * from users where id = ?");
         ps.setString(1, id);
         ResultSet rs = ps.executeQuery();
@@ -63,6 +63,10 @@ public class UserDao {
         con.close();
 
         return user;
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(ConnectionConst.URL, ConnectionConst.USERNAME, ConnectionConst.PASSWORD);
     }
 
 }
