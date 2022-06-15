@@ -1,4 +1,4 @@
-package springbook.connection;
+package springbook.ch1.user.connection;
 
 public class ConnectionConst {
 

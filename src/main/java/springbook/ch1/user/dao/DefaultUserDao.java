@@ -1,6 +1,6 @@
 package springbook.ch1.user.dao;
 
-import springbook.connection.ConnectionConst;
+import springbook.ch1.user.connection.ConnectionConst;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
