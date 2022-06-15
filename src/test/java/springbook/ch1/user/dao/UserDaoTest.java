@@ -3,7 +3,7 @@ package springbook.ch1.user.dao;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import springbook.ch1.user.domain.User;
-import springbook.connection.ConnectionConst;
+import springbook.ch1.user.connection.ConnectionConst;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
