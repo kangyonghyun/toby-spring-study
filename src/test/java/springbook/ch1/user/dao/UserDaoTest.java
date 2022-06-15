@@ -26,7 +26,7 @@ class UserDaoTest {
     @Test
     void crud() throws SQLException, ClassNotFoundException {
         User user = new User();
-        user.setId("kyh6");
+        user.setId("kyh7");
         user.setName("yong");
         user.setPassword("test");
         userDao.add(user);
