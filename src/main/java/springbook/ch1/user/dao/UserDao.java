@@ -1,10 +1,10 @@
 package springbook.ch1.user.dao;
 
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import springbook.ch1.user.connection.SimpleConnectionMaker;
 import springbook.ch1.user.domain.User;
-import springbook.connection.ConnectionConst;
+import springbook.ch1.user.connection.ConnectionConst;
 
 import java.sql.*;
 import java.util.NoSuchElementException;
@@ -13,23 +13,14 @@ public class UserDao {
 
     static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
-    public static void main(String[] args) throws SQLException {
-        UserDao userDao = new UserDao();
-        User user = new User();
-        user.setId("kyh12");
-        user.setName("yong");
-        user.setPassword("test");
+    private final SimpleConnectionMaker simpleConnectionMaker;
 
-        userDao.add(user);
-        log.info("USER 등록 성공 = {}", user.getId());
-
-        User findUser = userDao.get(user.getId());
-        log.info("USER 조회 성공 = {}", user.getId());
-
+    public UserDao() {
+        this.simpleConnectionMaker = new SimpleConnectionMaker();
     }
 
     public void add(User user) throws SQLException {
-        Connection con = getConnection();
+        Connection con = simpleConnectionMaker.makeNewConnection();
         log.info("connection = {}", con.getClass());
 
         PreparedStatement ps = con.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
@@ -44,7 +35,7 @@ public class UserDao {
     }
 
     public User get(String id) throws SQLException {
-        Connection con = getConnection();
+        Connection con = simpleConnectionMaker.makeNewConnection();
         PreparedStatement ps = con.prepareStatement("select * from users where id = ?");
         ps.setString(1, id);
         ResultSet rs = ps.executeQuery();
@@ -64,9 +55,4 @@ public class UserDao {
 
         return user;
     }
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(ConnectionConst.URL, ConnectionConst.USERNAME, ConnectionConst.PASSWORD);
-    }
-
 }
