@@ -2,6 +2,8 @@ package springbook.ch1.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import springbook.ch1.user.connection.ConnectionMaker;
+import springbook.ch1.user.connection.DriverManagerConnectionMaker;
 import springbook.ch1.user.domain.User;
 import springbook.ch1.user.connection.ConnectionConst;
 
@@ -13,8 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 class UserDaoTest {
-
-    UserDao userDao = new UserDao();
+    ConnectionMaker connectionMaker = new DriverManagerConnectionMaker();
+    UserDao userDao = new UserDao(connectionMaker);
 
     @Test
     void connection() throws SQLException {
@@ -26,7 +28,7 @@ class UserDaoTest {
     @Test
     void crud() throws SQLException, ClassNotFoundException {
         User user = new User();
-        user.setId("kyh7");
+        user.setId("kyh111");
         user.setName("yong");
         user.setPassword("test");
         userDao.add(user);
