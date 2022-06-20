@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 import springbook.ch1.user.connection.ConnectionMaker;
 import springbook.ch1.user.connection.CountingConnectionMaker;
 import springbook.ch1.user.connection.DConnectionMaker;
@@ -20,10 +21,11 @@ public class MainTest {
     static final Logger log = LoggerFactory.getLogger(UserDao.class);
 
     public static void main(String[] args) throws SQLException {
-        ApplicationContext context = new AnnotationConfigApplicationContext(CountingDaoFactory.class);
+//        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
         UserDao userDao = context.getBean("userDao", UserDao.class);
         User user = new User();
-        user.setId("kyh20");
+        user.setId("kyh23");
         user.setName("yong");
         user.setPassword("test");
 
@@ -33,7 +35,7 @@ public class MainTest {
         User findUser = userDao.get(user.getId());
         log.info("USER 조회 성공 = {}", findUser.getId());
 
-        CountingConnectionMaker connectionMaker = context.getBean("connectionMaker", CountingConnectionMaker.class);
-        log.info("DB 연결 횟수 = {}", connectionMaker.getCounter());
+//        CountingConnectionMaker connectionMaker = context.getBean("connectionMaker", CountingConnectionMaker.class);
+//        log.info("DB 연결 횟수 = {}", connectionMaker.getCounter());
     }
 }
