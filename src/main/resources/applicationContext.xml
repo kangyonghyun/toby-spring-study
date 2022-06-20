@@ -7,7 +7,6 @@
         <property name= "dataSource" ref = "dataSource"/>
     </bean>
 
-    <!--<bean id = "connectionMaker" class = "springbook.ch1.user.connection.DriverManagerConnectionMaker"/>-->
     <bean id = "dataSource" class = "org.springframework.jdbc.datasource.SimpleDriverDataSource">
         <property name="driverClass" value="org.h2.Driver"/>
         <property name="url" value="jdbc:h2:tcp://localhost/~/toby"/>
