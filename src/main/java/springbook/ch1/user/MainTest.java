@@ -3,14 +3,7 @@ package springbook.ch1.user;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
-import springbook.ch1.user.connection.ConnectionMaker;
-import springbook.ch1.user.connection.CountingConnectionMaker;
-import springbook.ch1.user.connection.DConnectionMaker;
-import springbook.ch1.user.connection.DriverManagerConnectionMaker;
-import springbook.ch1.user.dao.CountingDaoFactory;
-import springbook.ch1.user.dao.DaoFactory;
 import springbook.ch1.user.dao.UserDao;
 import springbook.ch1.user.domain.User;
 
@@ -35,7 +28,5 @@ public class MainTest {
         User findUser = userDao.get(user.getId());
         log.info("USER 조회 성공 = {}", findUser.getId());
 
-//        CountingConnectionMaker connectionMaker = context.getBean("connectionMaker", CountingConnectionMaker.class);
-//        log.info("DB 연결 횟수 = {}", connectionMaker.getCounter());
     }
 }
