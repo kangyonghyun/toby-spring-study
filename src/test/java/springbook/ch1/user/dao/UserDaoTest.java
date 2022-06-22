@@ -1,19 +1,17 @@
 package springbook.ch1.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
-import springbook.ch1.user.connection.ConnectionMaker;
-import springbook.ch1.user.connection.DriverManagerConnectionMaker;
-import springbook.ch1.user.domain.User;
 import springbook.ch1.user.connection.ConnectionConst;
+import springbook.ch1.user.domain.User;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,27 +19,33 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
 class UserDaoTest {
-    SimpleDriverDataSource dataSource;
-    ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+
+    UserDao userDao;
 
     @BeforeEach
-    void before() {
-        dataSource = new SimpleDriverDataSource();
+    void setUp() {
+        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+        userDao = context.getBean("userDao", UserDao.class);
+    }
+
+    @AfterEach
+    void after() throws SQLException {
+        userDao.deleteAll();
+    }
+
+    @Test
+    void connection() throws SQLException {
+        SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
         dataSource.setDriverClass(org.h2.Driver.class);
         dataSource.setUrl(ConnectionConst.URL);
         dataSource.setUsername(ConnectionConst.USERNAME);
         dataSource.setPassword(ConnectionConst.PASSWORD);
-    }
-    @Test
-    void connection() throws SQLException {
+
         Connection con = dataSource.getConnection();
-        log.info("connection = {}, class = {}", con, con.getClass());
         assertThat(con).isNotNull();
     }
     @Test
     void addAndGet() throws SQLException {
-
-        UserDao userDao = context.getBean("userDao", UserDao.class);
 
         User user1 = new User("kyh1", "yong", "test");
         userDao.add(user1);
@@ -62,8 +66,6 @@ class UserDaoTest {
 
     @Test
     void count() throws SQLException {
-        UserDao userDao = context.getBean("userDao", UserDao.class);
-
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
@@ -76,8 +78,6 @@ class UserDaoTest {
 
     @Test
     void getUserFailure() throws SQLException {
-        UserDao userDao = context.getBean("userDao", UserDao.class);
-
         assertThatThrownBy(() -> userDao.get("kyh1"))
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
