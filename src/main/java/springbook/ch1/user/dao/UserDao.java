@@ -2,6 +2,7 @@ package springbook.ch1.user.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import springbook.ch1.user.domain.User;
 
 import javax.sql.DataSource;
@@ -42,13 +43,16 @@ public class UserDao {
         ps.setString(1, id);
         ResultSet rs = ps.executeQuery();
 
-        User user = new User();
+        User user = null;
         if (rs.next()) {
+            user = new User();
             user.setId(rs.getString("id"));
             user.setName(rs.getString("name"));
             user.setPassword(rs.getString("password"));
-        } else {
-            throw new NoSuchElementException();
+        }
+
+        if (user == null) {
+            throw new EmptyResultDataAccessException(1);
         }
 
         rs.close();
@@ -56,6 +60,29 @@ public class UserDao {
         con.close();
 
         return user;
+    }
+
+    public void deleteAll() throws SQLException {
+        Connection con = dataSource.getConnection();
+        PreparedStatement ps = con.prepareStatement("delete from users");
+        ps.executeUpdate();
+
+        ps.close();
+        con.close();
+    }
+
+    public int getCount() throws SQLException {
+        Connection con = dataSource.getConnection();
+        PreparedStatement ps = con.prepareStatement("select count(*) from users");
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int count = rs.getInt(1);
+
+        rs.close();
+        ps.close();
+        con.close();
+
+        return count;
     }
 
 }
