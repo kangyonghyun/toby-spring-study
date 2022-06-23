@@ -26,13 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class UserDaoTest {
 
     @Autowired
-    private ApplicationContext context;
     UserDao userDao;
-
-    @Before
-    public void setUp() {
-        userDao = context.getBean("userDao", UserDao.class);
-    }
 
     @After
     public void after() throws SQLException {
