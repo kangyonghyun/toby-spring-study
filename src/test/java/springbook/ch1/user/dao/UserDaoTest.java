@@ -1,13 +1,16 @@
 package springbook.ch1.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.ch1.user.connection.ConnectionConst;
 import springbook.ch1.user.domain.User;
 
@@ -18,23 +21,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-class UserDaoTest {
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "/applicationContext.xml")
+public class UserDaoTest {
 
+    @Autowired
+    private ApplicationContext context;
     UserDao userDao;
 
-    @BeforeEach
-    void setUp() {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+    @Before
+    public void setUp() {
         userDao = context.getBean("userDao", UserDao.class);
     }
 
-    @AfterEach
-    void after() throws SQLException {
+    @After
+    public void after() throws SQLException {
         userDao.deleteAll();
     }
 
     @Test
-    void connection() throws SQLException {
+    public void connection() throws SQLException {
         SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
         dataSource.setDriverClass(org.h2.Driver.class);
         dataSource.setUrl(ConnectionConst.URL);
@@ -45,7 +51,7 @@ class UserDaoTest {
         assertThat(con).isNotNull();
     }
     @Test
-    void addAndGet() throws SQLException {
+    public void addAndGet() throws SQLException {
 
         User user1 = new User("kyh1", "yong", "test");
         userDao.add(user1);
@@ -65,7 +71,7 @@ class UserDaoTest {
     }
 
     @Test
-    void count() throws SQLException {
+    public void count() throws SQLException {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
@@ -77,7 +83,7 @@ class UserDaoTest {
     }
 
     @Test
-    void getUserFailure() throws SQLException {
+    public void getUserFailure() throws SQLException {
         assertThatThrownBy(() -> userDao.get("kyh1"))
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
