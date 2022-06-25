@@ -28,4 +28,11 @@ public class DaoFactory {
         userDao.setDataSource(dataSource());
         return userDao;
     }
+
+    @Bean
+    public UserDao userDao1() {
+        UserDao userDao = new UserDao();
+        userDao.setDataSource(dataSource());
+        return userDao;
+    }
 }

@@ -2,19 +2,14 @@ package springbook.ch1.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import springbook.ch1.user.connection.ConnectionConst;
 import springbook.ch1.user.domain.User;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,8 +60,8 @@ public class UserDaoTest {
     }
 
     @Test
-    public void getUserFailure() throws SQLException {
-        assertThatThrownBy(() -> userDao.get("kyh1"))
+    public void getUserFailure() {
+        assertThatThrownBy(() -> userDao.get("kyh"))
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
 }
