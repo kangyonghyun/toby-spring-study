@@ -34,19 +34,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void connection() throws SQLException {
-        SimpleDriverDataSource dataSource = new SimpleDriverDataSource();
-        dataSource.setDriverClass(org.h2.Driver.class);
-        dataSource.setUrl(ConnectionConst.URL);
-        dataSource.setUsername(ConnectionConst.USERNAME);
-        dataSource.setPassword(ConnectionConst.PASSWORD);
-
-        Connection con = dataSource.getConnection();
-        assertThat(con).isNotNull();
-    }
-    @Test
     public void addAndGet() throws SQLException {
-
         User user1 = new User("kyh1", "yong", "test");
         userDao.add(user1);
 
