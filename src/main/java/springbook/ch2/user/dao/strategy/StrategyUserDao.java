@@ -21,15 +21,41 @@ public class StrategyUserDao {
     }
 
     public void add(User user) throws SQLException {
-        addContext(new AddStatement(), user);
+//        class AddStatement implements StatementStrategy {
+//            @Override
+//            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+//                PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
+//                ps.setString(1, user.getId());
+//                ps.setString(2, user.getName());
+//                ps.setString(3, user.getPassword());
+//                return ps;
+//            }
+//        }
+//        addContext(new AddStatement(user));
+//        addContext(new AddStatement());
+        addAndDeleteContext(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
+                ps.setString(1, user.getId());
+                ps.setString(2, user.getName());
+                ps.setString(3, user.getPassword());
+                return ps;
+            }
+        });
     }
 
     public User get(String id) throws SQLException {
-        return getContext(new GetStatement(), id);
+        return getContext(new GetStatement(id));
     }
 
     public void deleteAll() throws SQLException {
-        deleteContext(new DeleteAllStatement());
+        addAndDeleteContext(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                return c.prepareStatement("delete from users");
+            }
+        });
     }
 
     public int getCount() throws SQLException {
@@ -110,7 +136,7 @@ public class StrategyUserDao {
         }
     }
 
-    public User getContext(StatementStrategy stmt, String id) throws SQLException {
+    public User getContext(StatementStrategy stmt) throws SQLException {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -120,7 +146,6 @@ public class StrategyUserDao {
 
             ps = stmt.makePreparedStatement(con);
 
-            ps.setString(1, id);
             rs = ps.executeQuery();
 
             User user = null;
@@ -164,7 +189,7 @@ public class StrategyUserDao {
         }
     }
 
-    public void addContext(StatementStrategy stmt, User user) throws SQLException {
+    public void addContext(StatementStrategy stmt) throws SQLException {
         Connection con = null;
         PreparedStatement ps = null;
         try {
@@ -173,9 +198,36 @@ public class StrategyUserDao {
 
             ps = stmt.makePreparedStatement(con);
 
-            ps.setString(1, user.getId());
-            ps.setString(2, user.getName());
-            ps.setString(3, user.getPassword());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            log.info("add Exception!!!");
+            throw e;
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    log.info("ps.close() error", e);
+                }
+            }
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    log.info("con.close() error", e);
+                }
+            }
+        }
+    }
+
+    public void addAndDeleteContext(StatementStrategy stmt) throws SQLException {
+        Connection con = null;
+        PreparedStatement ps = null;
+        try {
+            con = dataSource.getConnection();
+            log.info("connection = {}", con.getClass());
+
+            ps = stmt.makePreparedStatement(con);
 
             ps.executeUpdate();
         } catch (SQLException e) {
