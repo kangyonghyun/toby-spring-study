@@ -1,4 +1,4 @@
-package springbook.ch2.dao;
+package springbook.ch2.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
@@ -7,8 +7,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import springbook.ch2.user.dao.UserDao;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.junit4.SpringRunner;
 import springbook.ch2.user.domain.User;
 
 import java.sql.SQLException;
@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/applicationContextV2.xml")
+@RunWith(SpringRunner.class)
+@ContextConfiguration(locations = "/appContextV1.xml")
 public class UserDaoTest {
 
     @Autowired
