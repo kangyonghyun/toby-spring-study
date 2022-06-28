@@ -10,45 +10,25 @@ import java.sql.SQLException;
 
 public class UserDaoStrategy {
 
-    static final Logger log = LoggerFactory.getLogger(UserDaoStrategy.class);
-
     private JdbcContext jdbcContext;
     public void setJdbcContext(JdbcContext jdbcContext) {
         this.jdbcContext = jdbcContext;
     }
 
     public void add(User user) throws SQLException {
-        jdbcContext.addAndDeleteContext(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
-                ps.setString(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
-                return ps;
-            }
-        });
+        jdbcContext.executeSql("insert into users(id, name, password) values (?, ?, ?)", user.getId(), user.getName(), user.getPassword());
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContext.addAndDeleteContext(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                return c.prepareStatement("delete from users");
-            }
-        });
+        jdbcContext.executeSql("delete from users");
     }
 
     public User get(String id) throws SQLException {
-        return jdbcContext.getContext(c -> {
-            PreparedStatement ps = c.prepareStatement("select * from users where id = ?");
-            ps.setString(1, id);
-            return ps;
-        });
+        return jdbcContext.executeQuery("select * from users where id = ?", id);
     }
 
     public int getCount() throws SQLException {
-        return jdbcContext.countContext(new CountStatement());
+        return jdbcContext.executeQuery2("select count(*) from users");
     }
 
 }

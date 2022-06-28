@@ -147,4 +147,48 @@ public class JdbcContext {
             }
         }
     }
+
+    public void executeSql(String sql) throws SQLException {
+        this.addAndDeleteContext(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                return c.prepareStatement(sql);
+            }
+        });
+    }
+
+    public void executeSql(String query, String... vars) throws SQLException {
+        this.addAndDeleteContext(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                PreparedStatement ps = c.prepareStatement(query);
+                for (int i = 0; i < vars.length; i++) {
+                    ps.setString(i + 1, vars[i]);
+                }
+                return ps;
+            }
+        });
+    }
+
+    public User executeQuery(String query, String... vars) throws SQLException {
+        return this.getContext(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                PreparedStatement ps = c.prepareStatement(query);
+                for (int i = 0; i < vars.length; i++) {
+                    ps.setString(i +1 , vars[i]);
+                }
+                return ps;
+            }
+        });
+    }
+
+    public int executeQuery2(String query) throws SQLException {
+        return this.countContext(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                return c.prepareStatement(query);
+            }
+        });
+    }
 }
