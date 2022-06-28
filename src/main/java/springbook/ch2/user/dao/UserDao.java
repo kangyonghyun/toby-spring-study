@@ -3,6 +3,8 @@ package springbook.ch2.user.dao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import springbook.ch2.user.dao.strategy.DeleteAllStatement;
+import springbook.ch2.user.dao.strategy.StatementStrategy;
 import springbook.ch2.user.domain.User;
 
 import javax.sql.DataSource;
@@ -14,7 +16,6 @@ import java.sql.SQLException;
 public class UserDao {
 
     static final Logger log = LoggerFactory.getLogger(UserDao.class);
-
     private DataSource dataSource;
 
     public void setDataSource(DataSource dataSource) {
@@ -29,6 +30,7 @@ public class UserDao {
             log.info("connection = {}", con.getClass());
 
             ps = con.prepareStatement("insert into users(id, name, password) values (?, ?, ?)");
+
             ps.setString(1, user.getId());
             ps.setString(2, user.getName());
             ps.setString(3, user.getPassword());
@@ -112,7 +114,9 @@ public class UserDao {
         PreparedStatement ps = null;
         try {
             con = dataSource.getConnection();
+
             ps = con.prepareStatement("delete from users");
+
             ps.executeUpdate();
         } catch (SQLException e) {
             log.info("delete Exception!!!");
@@ -176,5 +180,4 @@ public class UserDao {
             }
         }
     }
-
 }
