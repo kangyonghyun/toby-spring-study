@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import springbook.ch2.user.domain.User;
 
 import java.sql.SQLException;
@@ -16,12 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "/applicationContextV2.xml")
+@RunWith(SpringRunner.class)
+@ContextConfiguration(locations = "/appContextV2.xml")
 public class UserDaoStrategyTest {
-
     @Autowired
-    StrategyUserDao userDao;
+    UserDaoStrategy userDao;
 
     @After
     public void after() throws SQLException {
