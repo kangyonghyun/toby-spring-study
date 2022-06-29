@@ -1,11 +1,7 @@
 package springbook.ch2.user.dao.strategy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import springbook.ch2.user.domain.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class UserDaoStrategy {
