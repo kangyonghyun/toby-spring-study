@@ -23,44 +23,60 @@ public class CalcSumTest {
     }
 
     @Test
-    public void sumCallback() throws IOException {
-        int result = calculator.calSum(path);
+    public void sumCallbackV1() throws IOException {
+        int result = calculator.calSumV1(path);
         assertThat(result).isEqualTo(15);
     }
     @Test
-    public void multiCallback() throws IOException {
-        int result = calculator.calMulti(path);
+    public void multiCallbackV1() throws IOException {
+        int result = calculator.calMultiV1(path);
         assertThat(result).isEqualTo(120);
     }
 
     @Test
-    public void sumLineCallBack() throws IOException {
-        int result = calculator.calSum2(path);
+    public void sumCallbackV2() throws IOException {
+        int result = calculator.calSumV2(path);
         assertThat(result).isEqualTo(15);
     }
 
     @Test
-    public void multiLineCallback() throws IOException {
-        int result = calculator.calMulti2(path);
+    public void multiCallbackV2() throws IOException {
+        int result = calculator.calMultiV2(path);
         assertThat(result).isEqualTo(120);
+    }
+
+    @Test
+    public void concatCallbackGeneric() throws IOException {
+        String result = calculator.concatenate(path);
+        assertThat(result).isEqualTo("12345");
+    }
+
+    @Test
+    public void sumCallbackGeneric() throws IOException {
+        int result = calculator.sum(path);
+        assertThat(result).isEqualTo(15);
     }
 
     interface BufferedReaderCallback {
         int doSomeThingWithReader(BufferedReader br) throws IOException;
     }
 
-    interface LineCallBack {
+    interface LineCallback {
         int doSomeThingWithLine(String line, int value);
+    }
+
+    interface LineCallBackGenerics<T> {
+        T doSomeThingWithLine(String line, T value);
     }
 
     static class Calculator  {
 
-        public int lineReadTemplate(String path, LineCallBack callBack, int initVal) throws IOException {
+        public <T> T lineReadTemplateGeneric(String path, LineCallBackGenerics<T> callback, T initVal) throws IOException {
             try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-                int res = initVal;
-                String line = null;
+                T res = initVal;
+                String line;
                 while ((line = br.readLine()) != null) {
-                    res = callBack.doSomeThingWithLine(line, res);
+                    res = callback.doSomeThingWithLine(line, res);
                 }
                 return res;
             } catch (IOException e) {
@@ -69,62 +85,71 @@ public class CalcSumTest {
             }
         }
 
-        public int context(String path, BufferedReaderCallback callBack) throws IOException {
+        public int lineReadTemplate(String path, LineCallback callback, int initVal) throws IOException {
             try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-                return callBack.doSomeThingWithReader(br);
+                int res = initVal;
+                String line;
+                while ((line = br.readLine()) != null) {
+                    res = callback.doSomeThingWithLine(line, res);
+                }
+                return res;
             } catch (IOException e) {
                 log.info(e.getMessage());
                 throw e;
             }
         }
-        public int calSum2(String path) throws IOException {
-            LineCallBack callback = new LineCallBack() {
-                @Override
-                public int doSomeThingWithLine(String line, int value) {
-                    return value += Integer.valueOf(line);
-                }
-            };
+
+        public int template(String path, BufferedReaderCallback callback) throws IOException {
+            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+                return callback.doSomeThingWithReader(br);
+            } catch (IOException e) {
+                log.info(e.getMessage());
+                throw e;
+            }
+        }
+
+        public String concatenate(String path) throws IOException {
+            LineCallBackGenerics<String> callback = (line, value) -> value += line;
+            return lineReadTemplateGeneric(path, callback, "");
+        }
+
+        public int sum(String path) throws IOException {
+            LineCallBackGenerics<Integer> callback = (line, value) -> value += Integer.valueOf(line);
+            return lineReadTemplateGeneric(path, callback, 0);
+        }
+
+        public int calSumV2(String path) throws IOException {
+            LineCallback callback = (line, value) -> value += Integer.valueOf(line);
             return lineReadTemplate(path, callback, 0);
         }
 
-        public int calSum(String path) throws IOException {
-            BufferedReaderCallback callback = new BufferedReaderCallback() {
-                @Override
-                public int doSomeThingWithReader(BufferedReader br) throws IOException {
-                    int sum = 0;
-                    String line = "";
-                    while ((line = br.readLine()) != null) {
-                        sum += Integer.valueOf(line);
-                    }
-                    return sum;
+        public int calSumV1(String path) throws IOException {
+            BufferedReaderCallback callback = br -> {
+                int sum = 0;
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sum += Integer.valueOf(line);
                 }
+                return sum;
             };
-            return context(path, callback);
+            return template(path, callback);
         }
 
-        public int calMulti2(String path) throws IOException {
-            LineCallBack callBack = new LineCallBack() {
-                @Override
-                public int doSomeThingWithLine(String line, int value) {
-                    return value *= Integer.valueOf(line);
-                }
-            };
+        public int calMultiV2(String path) throws IOException {
+            LineCallback callBack = (line, value) -> value *= Integer.valueOf(line);
             return lineReadTemplate(path, callBack, 1);
         }
 
-        public int calMulti(String path) throws IOException {
-            BufferedReaderCallback callback = new BufferedReaderCallback() {
-                @Override
-                public int doSomeThingWithReader(BufferedReader br) throws IOException {
-                    int multi = 1;
-                    String line = "";
-                    while ((line = br.readLine()) != null) {
-                        multi *= Integer.valueOf(line);
-                    }
-                    return multi;
+        public int calMultiV1(String path) throws IOException {
+            BufferedReaderCallback callback = br -> {
+                int multi = 1;
+                String line;
+                while ((line = br.readLine()) != null) {
+                    multi *= Integer.valueOf(line);
                 }
+                return multi;
             };
-            return context(path, callback);
+            return template(path, callback);
         }
     }
 }
