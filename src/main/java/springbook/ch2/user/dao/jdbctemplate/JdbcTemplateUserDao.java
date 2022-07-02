@@ -35,8 +35,9 @@ public class JdbcTemplateUserDao {
         return this.jdbcTemplate.queryForObject("select * from users where id = ?",
                 userRowMapper(), id);
     }
+
     public List<User> getAll() {
-        return this.jdbcTemplate.query("select * from users", userRowMapper());
+        return this.jdbcTemplate.query("select * from users order by id", userRowMapper());
     }
 
     public void deleteAll() {
