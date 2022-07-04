@@ -1,18 +1,17 @@
 package springbook.ch3.user.dao;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import springbook.ch3.JavaConfig;
 import springbook.ch3.user.domain.User;
 
 import javax.sql.DataSource;
@@ -22,8 +21,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("/jdbctemplateV2.xml")
+@SpringJUnitConfig(JavaConfig.class)
 public class UserDaoImplTest {
 
     @Autowired
@@ -32,29 +32,13 @@ public class UserDaoImplTest {
     @Autowired
     DataSource dataSource;
 
-//    @Configuration
-//    static class config {
-//        @Bean
-//        UserDao userDao() {
-//            UserDao userDao = new UserDaoImpl(dataSource());
-//            return userDao;
-//        }
-//
-//        @Bean
-//        public DataSource dataSource() {
-//            DataSource dataSource = new SingleConnectionDataSource("jdbc:h2:tcp://localhost/~/tobytest",
-//                    "sa", "", true);
-//            return dataSource;
-//        }
-//    }
-
-    @After
-    public void end() throws SQLException {
+    @AfterEach
+    void end() throws SQLException {
         userdao.deleteAll();
     }
 
     @Test
-    public void get(){
+    void get(){
         User user1 = new User("kyh1", "yong", "test");
         User user2 = new User("kyh2", "yong", "test");
         userdao.add(user1);
@@ -64,7 +48,7 @@ public class UserDaoImplTest {
     }
 
     @Test
-    public void count() {
+    void count() {
         assertThat(userdao.getCount()).isEqualTo(0);
         userdao.add(new User("kyh1", "yong", "test"));
         userdao.add(new User("kyh2", "yong", "test"));
@@ -74,7 +58,7 @@ public class UserDaoImplTest {
     }
 
     @Test
-    public void getAll() throws SQLException {
+    void getAll() throws SQLException {
         User user1 = new User("kyh2", "yong", "test");
         userdao.add(user1);
         List<User> users1 = userdao.getAll();
@@ -90,7 +74,7 @@ public class UserDaoImplTest {
     }
 
     @Test
-    public void getAll_zero() {
+    void getAll_zero() {
         List<User> users = userdao.getAll();
         assertThat(users).size().isEqualTo(0);
     }
@@ -103,13 +87,13 @@ public class UserDaoImplTest {
     }
 
     @Test
-    public void getUserFailure() {
+    void getUserFailure() {
         assertThatThrownBy(() -> userdao.get("kyh"))
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
 
     @Test
-    public void duplicateKey() {
+    void duplicateKey() {
         User user1 = new User("kyh2", "yong", "test");
         User user2 = new User("kyh2", "yong", "test");
         userdao.add(user1);
@@ -118,7 +102,7 @@ public class UserDaoImplTest {
     }
 
     @Test
-    public void sqlExceptionTranslate() {
+    void sqlExceptionTranslate() {
         User user1 = new User("kyh2", "yong", "test");
         User user2 = new User("kyh2", "yong", "test");
         try {

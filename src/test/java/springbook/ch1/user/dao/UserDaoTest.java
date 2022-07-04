@@ -1,13 +1,13 @@
 package springbook.ch1.user.dao;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import springbook.ch1.user.domain.User;
 
 import java.sql.SQLException;
@@ -16,20 +16,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "/applicationContext.xml")
 public class UserDaoTest {
 
     @Autowired
     UserDao userDao;
 
-    @After
-    public void after() throws SQLException {
+    @AfterEach
+     void after() throws SQLException {
         userDao.deleteAll();
     }
 
     @Test
-    public void addAndGet() throws SQLException {
+     void addAndGet() throws SQLException {
         User user1 = new User("kyh1", "yong", "test");
         userDao.add(user1);
 
@@ -48,7 +48,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void count() throws SQLException {
+     void count() throws SQLException {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
@@ -60,7 +60,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void getUserFailure() {
+     void getUserFailure() {
         assertThatThrownBy(() -> userDao.get("kyh"))
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }

@@ -1,9 +1,9 @@
 package springbook.ch2.user.dao.templatemethod;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import springbook.ch2.user.domain.User;
@@ -20,20 +20,20 @@ public class UserDaoMethodTemplateTest {
     AbstractUserDao userDao;
     DataSource dataSource;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+     void setUp() {
         dataSource = new SingleConnectionDataSource("jdbc:h2:tcp://localhost/~/tobytest", "sa", "", true);
     }
 
-    @After
-    public void after() throws SQLException {
+    @AfterEach
+     void after() throws SQLException {
         userDao = new UserDaoDeleteAll();
         userDao.setDataSource(dataSource);
         userDao.deleteAll();
     }
 
     @Test
-    public void addAndGet() throws SQLException {
+     void addAndGet() throws SQLException {
         userDao = new UserDaoAdd();
         userDao.setDataSource(dataSource);
 
@@ -56,7 +56,7 @@ public class UserDaoMethodTemplateTest {
     }
 
     @Test
-    public void count() throws SQLException {
+     void count() throws SQLException {
         userDao = new UserDaoDeleteAll();
         userDao.setDataSource(dataSource);
 
@@ -74,7 +74,7 @@ public class UserDaoMethodTemplateTest {
     }
 
     @Test
-    public void getUserFailure() {
+     void getUserFailure() {
         userDao = new UserDaoGet();
         userDao.setDataSource(dataSource);
 
