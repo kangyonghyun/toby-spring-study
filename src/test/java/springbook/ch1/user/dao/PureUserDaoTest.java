@@ -1,9 +1,8 @@
 package springbook.ch1.user.dao;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import springbook.ch1.user.domain.User;
 
@@ -17,15 +16,15 @@ public class PureUserDaoTest {
 
     private UserDao userDao;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+     void setUp() {
         DataSource dataSource = new SingleConnectionDataSource("jdbc:h2:tcp://localhost/~/tobytest", "sa", "", true);
         userDao = new UserDao();
         userDao.setDataSource(dataSource);
     }
 
     @Test
-    public void addAndGet() throws SQLException {
+     void addAndGet() throws SQLException {
         User user1 = new User("kyh1", "yong", "test");
         userDao.add(user1);
 
@@ -44,7 +43,7 @@ public class PureUserDaoTest {
     }
 
     @Test
-    public void count() throws SQLException {
+     void count() throws SQLException {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
@@ -56,7 +55,7 @@ public class PureUserDaoTest {
     }
 
     @Test
-    public void getUserFailure() throws SQLException {
+     void getUserFailure() throws SQLException {
         assertThatThrownBy(() -> userDao.get("kyh1"))
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
