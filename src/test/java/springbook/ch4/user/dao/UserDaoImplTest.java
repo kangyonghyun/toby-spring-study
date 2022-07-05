@@ -101,4 +101,21 @@ class UserDaoImplTest {
                 .isInstanceOf(DuplicateKeyException.class);
     }
 
+    @Test
+    void update() {
+        User user = userdao.get("kyh1");
+
+        user.setName("kyh99");
+        user.setPassword("test99");
+        user.setLevel(Level.GOLD);
+        user.setLogin(1000);
+        user.setRecommend(999);
+        userdao.update(user);
+
+        User updateUser = userdao.get("kyh1");
+        checkSameUser(updateUser, user);
+        // 만약, where 절 없이 모두 업데이트 될 경우 에러 발생
+        checkSameUser(userdao.get("kyh2"), user3);
+    }
+
 }
