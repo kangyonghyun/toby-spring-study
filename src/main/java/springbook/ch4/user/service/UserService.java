@@ -23,32 +23,12 @@ public class UserService {
 
     public void upgradeLevels() {
         userDao.getAll().stream()
-                .filter(this::canUpgradeLevel)
+                .filter(User::canUpgradeLevel)
                 .forEach(this::upgradeLevel);
     }
 
-    private boolean canUpgradeLevel(User user) {
-        Level userLevel = user.getLevel();
-        if (userLevel == Level.BASIC){
-            return user.getLogin() >= 50;
-        }
-        if (userLevel == Level.SILVER){
-            return user.getRecommend() >= 30;
-        }
-        if (userLevel == Level.GOLD) {
-            return false;
-        }
-        throw new IllegalArgumentException("Unknown level : " + user.getLevel());
-    }
-
     private void upgradeLevel(User user) {
-        if (user.getLevel() == Level.BASIC) {
-            user.setLevel(Level.SILVER);
-        } else if (user.getLevel() == Level.SILVER) {
-            user.setLevel(Level.GOLD);
-        } else {
-            return;
-        }
+        user.upgradeLevel();
         userDao.update(user);
     }
 
