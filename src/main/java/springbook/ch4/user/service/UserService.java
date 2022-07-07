@@ -4,10 +4,10 @@ import springbook.ch4.user.dao.UserDao;
 import springbook.ch4.user.domain.Level;
 import springbook.ch4.user.domain.User;
 
-import java.util.List;
-
 public class UserService {
 
+    public static final int MIN_LOGIN_FOR_SILVER = 50;
+    public static final int MIN_RECOMMEND_FOR_GOLD = 30;
     private final UserDao userDao;
 
     public UserService(UserDao userDao) {
@@ -23,8 +23,22 @@ public class UserService {
 
     public void upgradeLevels() {
         userDao.getAll().stream()
-                .filter(User::canUpgradeLevel)
+                .filter(this::canUpgradeLevel)
                 .forEach(this::upgradeLevel);
+    }
+
+    private boolean canUpgradeLevel(User user) {
+        Level level = user.getLevel();
+        if (level == Level.BASIC){
+            return user.getLogin() >= MIN_LOGIN_FOR_SILVER;
+        }
+        if (level == Level.SILVER){
+            return user.getRecommend() >= MIN_RECOMMEND_FOR_GOLD;
+        }
+        if (level == Level.GOLD) {
+            return false;
+        }
+        throw new IllegalArgumentException("Unknown level : " + level);
     }
 
     private void upgradeLevel(User user) {
