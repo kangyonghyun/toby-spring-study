@@ -1,6 +1,5 @@
 package springbook.ch4.user.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,17 +7,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import springbook.ch4.user.dao.UserDao;
 import springbook.ch4.user.domain.Level;
 import springbook.ch4.user.domain.User;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static springbook.ch4.user.service.UserService.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static springbook.ch4.user.service.UserService.MIN_LOGIN_FOR_SILVER;
+import static springbook.ch4.user.service.UserService.MIN_RECOMMEND_FOR_GOLD;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("/jdbctemplateV3.xml")
@@ -84,6 +82,49 @@ class UserServiceTest {
         } else {
             assertThat(findUser.getLevel()).isEqualTo(user.getLevel());
         }
+    }
+
+    static class TxTestUserService extends UserService {
+
+        private String id;
+
+        public TxTestUserService(UserDao userDao, String id) {
+            super(userDao);
+            this.id = id;
+        }
+
+        @Override
+        protected void upgradeLevel(User user) {
+            if (user.getId().equals(id)) {
+                throw new TxUserServiceException("강제 예외");
+            }
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TxUserServiceException extends RuntimeException {
+        public TxUserServiceException(String message) {
+            super(message);
+        }
+    }
+
+    @Test
+    void upgradeAllOrNothing() {
+        TxTestUserService service = new TxTestUserService(userDao, users.get(2).getId());
+        for (User user : users) {
+            userDao.add(user);
+        }
+//        try {
+//            assertThatThrownBy(() -> service.upgradeLevels())
+//                    .isInstanceOf(TxUserServiceException.class);
+//        } catch (TxUserServiceException e) {
+//
+//        }
+
+        assertThatThrownBy(() -> service.upgradeLevels())
+                .isInstanceOf(TxUserServiceException.class);
+
+        checkLevelUpgraded(users.get(0), true);
     }
 
 }

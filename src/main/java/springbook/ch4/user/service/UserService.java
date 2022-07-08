@@ -41,7 +41,7 @@ public class UserService {
         throw new IllegalArgumentException("Unknown level : " + level);
     }
 
-    private void upgradeLevel(User user) {
+    protected void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
     }
