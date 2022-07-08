@@ -11,6 +11,7 @@ import springbook.ch4.user.dao.UserDao;
 import springbook.ch4.user.domain.Level;
 import springbook.ch4.user.domain.User;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +28,9 @@ class UserServiceTest {
 
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    DataSource dataSource;
 
     List<User> users;
 
@@ -57,7 +61,7 @@ class UserServiceTest {
     }
 
     @Test
-    void upgradeLevels() {
+    void upgradeLevels() throws Exception {
         for (User user : users) {
             userDao.add(user);
         }
@@ -88,8 +92,8 @@ class UserServiceTest {
 
         private String id;
 
-        public TxTestUserService(UserDao userDao, String id) {
-            super(userDao);
+        public TxTestUserService(UserDao userDao, DataSource dataSource, String id) {
+            super(userDao, dataSource);
             this.id = id;
         }
 
@@ -109,22 +113,18 @@ class UserServiceTest {
     }
 
     @Test
-    void upgradeAllOrNothing() {
-        TxTestUserService service = new TxTestUserService(userDao, users.get(2).getId());
+    void upgradeAllOrNothing_X() {
         for (User user : users) {
             userDao.add(user);
         }
-//        try {
-//            assertThatThrownBy(() -> service.upgradeLevels())
-//                    .isInstanceOf(TxUserServiceException.class);
-//        } catch (TxUserServiceException e) {
-//
-//        }
+
+        TxTestUserService service = new TxTestUserService(userDao, dataSource, users.get(2).getId());
 
         assertThatThrownBy(() -> service.upgradeLevels())
                 .isInstanceOf(TxUserServiceException.class);
 
-        checkLevelUpgraded(users.get(0), true);
+        checkLevelUpgraded(users.get(0), false);
     }
+
 
 }
