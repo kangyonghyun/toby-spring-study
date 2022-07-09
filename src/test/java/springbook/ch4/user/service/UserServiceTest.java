@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 import springbook.ch4.user.dao.UserDao;
 import springbook.ch4.user.domain.Level;
 import springbook.ch4.user.domain.User;
@@ -30,7 +31,7 @@ class UserServiceTest {
     UserDao userDao;
 
     @Autowired
-    DataSource dataSource;
+    PlatformTransactionManager transactionManager;
 
     List<User> users;
 
@@ -92,8 +93,8 @@ class UserServiceTest {
 
         private String id;
 
-        public TxTestUserService(UserDao userDao, DataSource dataSource, String id) {
-            super(userDao, dataSource);
+        public TxTestUserService(UserDao userDao, PlatformTransactionManager transactionManager, String id) {
+            super(userDao, transactionManager);
             this.id = id;
         }
 
@@ -118,7 +119,7 @@ class UserServiceTest {
             userDao.add(user);
         }
 
-        TxTestUserService service = new TxTestUserService(userDao, dataSource, users.get(2).getId());
+        TxTestUserService service = new TxTestUserService(userDao, transactionManager, users.get(2).getId());
 
         assertThatThrownBy(() -> service.upgradeLevels())
                 .isInstanceOf(TxUserServiceException.class);
