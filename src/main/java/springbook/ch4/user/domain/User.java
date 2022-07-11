@@ -1,13 +1,11 @@
 package springbook.ch4.user.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
 @EqualsAndHashCode
 @NoArgsConstructor
+@ToString
 public class User {
 
     private String id;
@@ -17,6 +15,8 @@ public class User {
     private Level level;
     private int login;
     private int recommend;
+
+    private String email;
 
     public User(String id, String name, String password) {
         this.id = id;
@@ -41,4 +41,7 @@ public class User {
         level = nextLevel;
     }
 
+    public String getEmail() {
+        return this.email;
+    }
 }

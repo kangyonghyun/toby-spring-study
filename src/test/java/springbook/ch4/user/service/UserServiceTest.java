@@ -38,8 +38,10 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         User user1 = new User("kyh1", "yong", "test", Level.BASIC, MIN_LOGIN_FOR_SILVER,30);
+        user1.setEmail("hmoon826@naver.com");
         User user2 = new User("kyh2", "yong", "test", Level.BASIC, MIN_LOGIN_FOR_SILVER - 1,30);
         User user3 = new User("kyh3", "yong", "test", Level.SILVER, 55, MIN_RECOMMEND_FOR_GOLD);
+        user3.setEmail("hmoon826@naver.com");
         User user4 = new User("kyh4", "yong", "test", Level.SILVER, 1, MIN_RECOMMEND_FOR_GOLD - 1);
         User user5 = new User("kyh5", "yong", "test", Level.GOLD, 100, 50);
         users = List.of(user1, user2, user3, user4, user5);

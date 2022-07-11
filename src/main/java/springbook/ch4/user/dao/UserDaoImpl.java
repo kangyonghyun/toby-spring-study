@@ -16,7 +16,7 @@ public class UserDaoImpl implements UserDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    private RowMapper<User> userRowMapper = (rs, rowNum) -> {
+    private final RowMapper<User> userRowMapper = (rs, rowNum) -> {
         User user = new User();
         user.setId(rs.getString("id"));
         user.setName(rs.getString("name"));
@@ -24,13 +24,14 @@ public class UserDaoImpl implements UserDao {
         user.setLevel(Level.valueOf(rs.getInt("level")));
         user.setLogin(rs.getInt("login"));
         user.setRecommend(rs.getInt("recommend"));
+        user.setEmail(rs.getString("email"));
         return user;
     };
 
     @Override
     public void add(User user) {
-        jdbcTemplate.update("insert into users(id, name, password, level, login, recommend) values (?, ?, ?, ?, ?, ?)",
-                user.getId(), user.getName(), user.getPassword(), user.getLevel().intValue(), user.getLogin(), user.getRecommend());
+        jdbcTemplate.update("insert into users(id, name, password, email, level, login, recommend) values (?, ?, ?, ?, ?, ?, ?)",
+                user.getId(), user.getName(), user.getPassword(), user.getEmail(), user.getLevel().intValue(), user.getLogin(), user.getRecommend());
     }
 
     @Override
