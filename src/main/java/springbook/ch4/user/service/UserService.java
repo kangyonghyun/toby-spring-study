@@ -1,5 +1,7 @@
 package springbook.ch4.user.service;
 
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -7,22 +9,18 @@ import springbook.ch4.user.dao.UserDao;
 import springbook.ch4.user.domain.Level;
 import springbook.ch4.user.domain.User;
 
-import javax.mail.*;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.Properties;
-
 public class UserService {
 
     public static final int MIN_LOGIN_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
     private final UserDao userDao;
     private final PlatformTransactionManager transactionManager;
+    private final MailSender mailSender;
 
-    public UserService(UserDao userDao, PlatformTransactionManager transactionManager) {
+    public UserService(UserDao userDao, PlatformTransactionManager transactionManager, MailSender mailSender) {
         this.userDao = userDao;
         this.transactionManager = transactionManager;
+        this.mailSender = mailSender;
     }
 
     public void save(User user) {
@@ -66,32 +64,12 @@ public class UserService {
     }
 
     private void sendUpgradeMail(User user) {
-        String userEmail = "hmoon826@gmail.com";
-        String userPassword = "password";
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "465");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.ssl.enable", "true");
-        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-        Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(userEmail, userPassword);
-            }
-        });
-
-        MimeMessage message = new MimeMessage(session);
-        try {
-            message.setFrom(new InternetAddress(userEmail));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getEmail()));
-            message.setSubject("Upgrade 안내");
-            message.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다");
-            Transport.send(message);
-        } catch (AddressException e) {
-            throw new RuntimeException(e);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setFrom("hmoon826@gmail.com");
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setSubject("Upgrade 안내");
+        mailMessage.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다");
+        this.mailSender.send(mailMessage);
     }
 
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -12,7 +13,6 @@ import springbook.ch4.user.dao.UserDao;
 import springbook.ch4.user.domain.Level;
 import springbook.ch4.user.domain.User;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +32,9 @@ class UserServiceTest {
 
     @Autowired
     PlatformTransactionManager transactionManager;
+
+    @Autowired
+    MailSender mailSender;
 
     List<User> users;
 
@@ -95,8 +98,8 @@ class UserServiceTest {
 
         private String id;
 
-        public TxTestUserService(UserDao userDao, PlatformTransactionManager transactionManager, String id) {
-            super(userDao, transactionManager);
+        public TxTestUserService(UserDao userDao, PlatformTransactionManager transactionManager, MailSender mailSender, String id) {
+            super(userDao, transactionManager, mailSender);
             this.id = id;
         }
 
@@ -121,7 +124,7 @@ class UserServiceTest {
             userDao.add(user);
         }
 
-        TxTestUserService service = new TxTestUserService(userDao, transactionManager, users.get(2).getId());
+        TxTestUserService service = new TxTestUserService(userDao, transactionManager, mailSender, users.get(2).getId());
 
         assertThatThrownBy(() -> service.upgradeLevels())
                 .isInstanceOf(TxUserServiceException.class);
