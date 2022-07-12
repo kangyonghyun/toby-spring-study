@@ -71,6 +71,10 @@ class UserServiceTest {
         for (User user : users) {
             userDao.add(user);
         }
+
+        MockMailSender mockMailSender = new MockMailSender();
+        userService.setMailSender(mockMailSender);
+
         userService.upgradeLevels();
 
         checkLevelUpgraded(users.get(0), true);
@@ -78,6 +82,10 @@ class UserServiceTest {
         checkLevelUpgraded(users.get(2), true);
         checkLevelUpgraded(users.get(3), false);
         checkLevelUpgraded(users.get(4), false);
+
+        List<String> requests = mockMailSender.getRequests();
+        assertThat(requests).size().isEqualTo(2);
+        assertThat(requests).containsExactly(users.get(0).getEmail(), users.get(2).getEmail());
     }
 
     private void checkLevel(User user, Level level) {
@@ -131,6 +139,4 @@ class UserServiceTest {
 
         checkLevelUpgraded(users.get(0), false);
     }
-
-
 }
