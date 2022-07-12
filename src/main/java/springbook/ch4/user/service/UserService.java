@@ -15,11 +15,15 @@ public class UserService {
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
     private final UserDao userDao;
     private final PlatformTransactionManager transactionManager;
-    private final MailSender mailSender;
+    private MailSender mailSender;
 
     public UserService(UserDao userDao, PlatformTransactionManager transactionManager, MailSender mailSender) {
         this.userDao = userDao;
         this.transactionManager = transactionManager;
+        this.mailSender = mailSender;
+    }
+
+    public void setMailSender(MailSender mailSender) {
         this.mailSender = mailSender;
     }
 
