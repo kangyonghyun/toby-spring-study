@@ -13,8 +13,10 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private MailSender mailSender;
 
-    public UserServiceImpl(UserDao userDao, MailSender mailSender) {
+    public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
+    }
+    public void setMailSender(MailSender mailSender) {
         this.mailSender = mailSender;
     }
 

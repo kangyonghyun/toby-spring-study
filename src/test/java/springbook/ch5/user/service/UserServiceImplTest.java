@@ -75,7 +75,8 @@ class UserServiceImplTest {
         }
 
         MockMailSender mockMailSender = new MockMailSender();
-        UserService service = new UserServiceImpl(userDao, mockMailSender);
+        UserServiceImpl service = new UserServiceImpl(userDao);
+        service.setMailSender(mockMailSender);
 
         service.upgradeLevels();
 
@@ -108,8 +109,8 @@ class UserServiceImplTest {
 
         private String id;
 
-        public TxTestUserService(UserDao userDao, MailSender mailSender, String id) {
-            super(userDao, mailSender);
+        public TxTestUserService(UserDao userDao, String id) {
+            super(userDao);
             this.id = id;
         }
 
@@ -134,7 +135,8 @@ class UserServiceImplTest {
             userDao.add(user);
         }
 
-        TxTestUserService testService = new TxTestUserService(userDao, mailSender, users.get(2).getId());
+        TxTestUserService testService = new TxTestUserService(userDao, users.get(2).getId());
+        testService.setMailSender(mailSender);
 
         UserServiceTx service = new UserServiceTx(testService, transactionManager);
 
