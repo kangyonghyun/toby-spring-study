@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -17,13 +18,14 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static springbook.ch5.user.service.UserService.MIN_LOGIN_FOR_SILVER;
-import static springbook.ch5.user.service.UserService.MIN_RECOMMEND_FOR_GOLD;
+import static springbook.ch5.user.service.UserServiceImpl.MIN_LOGIN_FOR_SILVER;
+import static springbook.ch5.user.service.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration("/jdbctemplateV4.xml")
-class UserServiceTest {
+class UserServiceImplTest {
 
+    @Qualifier("userServiceTx")
     @Autowired
     UserService userService;
 
@@ -73,9 +75,9 @@ class UserServiceTest {
         }
 
         MockMailSender mockMailSender = new MockMailSender();
-        userService.setMailSender(mockMailSender);
+        UserService service = new UserServiceImpl(userDao, mockMailSender);
 
-        userService.upgradeLevels();
+        service.upgradeLevels();
 
         checkLevelUpgraded(users.get(0), true);
         checkLevelUpgraded(users.get(1), false);
@@ -102,12 +104,12 @@ class UserServiceTest {
         }
     }
 
-    static class TxTestUserService extends UserService {
+    static class TxTestUserService extends UserServiceImpl {
 
         private String id;
 
-        public TxTestUserService(UserDao userDao, PlatformTransactionManager transactionManager, MailSender mailSender, String id) {
-            super(userDao, transactionManager, mailSender);
+        public TxTestUserService(UserDao userDao, MailSender mailSender, String id) {
+            super(userDao, mailSender);
             this.id = id;
         }
 
@@ -127,12 +129,14 @@ class UserServiceTest {
     }
 
     @Test
-    void upgradeAllOrNothing_X() {
+    void upgradeAllOrNothing() {
         for (User user : users) {
             userDao.add(user);
         }
 
-        TxTestUserService service = new TxTestUserService(userDao, transactionManager, mailSender, users.get(2).getId());
+        TxTestUserService testService = new TxTestUserService(userDao, mailSender, users.get(2).getId());
+
+        UserServiceTx service = new UserServiceTx(testService, transactionManager);
 
         assertThatThrownBy(service::upgradeLevels)
                 .isInstanceOf(TxUserServiceException.class);
