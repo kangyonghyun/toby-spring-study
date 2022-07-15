@@ -47,4 +47,5 @@ public class MockUserDao implements UserDao {
     public int getCount() {
         throw new AssertionError();
     }
+
 }

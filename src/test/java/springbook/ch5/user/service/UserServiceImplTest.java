@@ -166,4 +166,5 @@ class UserServiceImplTest {
 
         checkLevelUpgraded(users.get(0), false);
     }
+
 }
