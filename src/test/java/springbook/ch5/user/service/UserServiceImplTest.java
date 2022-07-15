@@ -91,6 +91,27 @@ class UserServiceImplTest {
         assertThat(requests).containsExactly(users.get(0).getEmail(), users.get(2).getEmail());
     }
 
+    @Test
+    void mockUserDaoTest() {
+        MockUserDao mockUserDao = new MockUserDao(users);
+        MockMailSender mockMailSender = new MockMailSender();
+
+        UserServiceImpl service = new UserServiceImpl(mockUserDao);
+        service.setMailSender(mockMailSender);
+
+        service.upgradeLevels();
+
+        List<User> updatedUsers = mockUserDao.getUpdatedUsers();
+
+        checkUserAndLevel(updatedUsers.get(0), "kyh1", Level.SILVER);
+        checkUserAndLevel(updatedUsers.get(1), "kyh3", Level.GOLD);
+    }
+
+    private void checkUserAndLevel(User updated, String expectedID, Level expectedLevel) {
+        assertThat(updated.getId()).isEqualTo(expectedID);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
+    }
+
     private void checkLevel(User user, Level level) {
         User findUser = userDao.get(user.getId());
         assertThat(findUser.getLevel()).isEqualTo(level);
