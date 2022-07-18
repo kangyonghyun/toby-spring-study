@@ -16,6 +16,8 @@ import springbook.ch5.user.dao.UserDao;
 import springbook.ch5.user.domain.Level;
 import springbook.ch5.user.domain.User;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -191,6 +193,26 @@ class UserServiceImplTest {
 
         assertThatThrownBy(service::upgradeLevels)
                 .isInstanceOf(TxUserServiceException.class);
+
+        checkLevelUpgraded(users.get(0), false);
+    }
+
+    @Test
+    void upgradeAllOrNothing_handler() {
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        TxTestUserService testService = new TxTestUserService(userDao, users.get(2).getId());
+        testService.setMailSender(mailSender);
+
+        UserService service = (UserService) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{UserService.class},
+                new TransactionHandler(testService, transactionManager, "upgradeLevel"));
+
+        assertThatThrownBy(service::upgradeLevels)
+                .isInstanceOf(RuntimeException.class);
 
         checkLevelUpgraded(users.get(0), false);
     }
