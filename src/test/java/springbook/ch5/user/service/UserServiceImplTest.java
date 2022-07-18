@@ -212,7 +212,7 @@ class UserServiceImplTest {
                 new TransactionHandler(testService, transactionManager, "upgradeLevel"));
 
         assertThatThrownBy(service::upgradeLevels)
-                .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(TxUserServiceException.class);
 
         checkLevelUpgraded(users.get(0), false);
     }

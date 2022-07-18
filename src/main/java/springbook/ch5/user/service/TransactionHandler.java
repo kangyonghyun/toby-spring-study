@@ -29,7 +29,7 @@ public class TransactionHandler implements InvocationHandler {
         }
     }
 
-    private Object invokeTransaction(Method method, Object[] args) throws IllegalAccessException, InvocationTargetException {
+    private Object invokeTransaction(Method method, Object[] args) throws Throwable {
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             Object serviceReturn = method.invoke(target, args);
@@ -37,7 +37,7 @@ public class TransactionHandler implements InvocationHandler {
             return serviceReturn;
         } catch (InvocationTargetException e) {
             transactionManager.rollback(status);
-            throw e;
+            throw e.getTargetException();
         }
     }
 }
