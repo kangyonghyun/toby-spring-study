@@ -1,16 +1,21 @@
 package springbook.ch5.user.learningtest;
 
 import org.junit.jupiter.api.Test;
+import springbook.ch5.user.learningtest.reflection.Hello;
+import springbook.ch5.user.learningtest.reflection.HelloTarget;
+import springbook.ch5.user.learningtest.reflection.HelloUppercase;
+import springbook.ch5.user.learningtest.reflection.UppercaseHandler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReflectionTest {
 
     @Test
-    void invokeMethod() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    void reflection() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         String name = "Spring";
         assertThat(name.length()).isEqualTo(6);
 
@@ -24,67 +29,30 @@ public class ReflectionTest {
         assertThat((Character) String.class.getMethod("charAt", int.class).invoke(name, 0)).isEqualTo('S');
     }
 
-    interface Hello {
-        String sayHello(String name);
-        String sayHi(String name);
-        String sayThankYou(String name);
-    }
-
-    class HelloTarget implements Hello {
-
-        @Override
-        public String sayHello(String name) {
-            return "Hello " + name;
-        }
-
-        @Override
-        public String sayHi(String name) {
-            return "Hi " + name;
-        }
-
-        @Override
-        public String sayThankYou(String name) {
-            return "Thank you " + name;
-        }
-    }
-
     @Test
-    void simpleProxy() {
+    void hello() {
         Hello hello = new HelloTarget();
         assertThat(hello.sayHello("Toby")).isEqualTo("Hello Toby");
         assertThat(hello.sayHi("Toby")).isEqualTo("Hi Toby");
         assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank you Toby");
     }
 
-    class HelloUppercase implements Hello {
-        Hello target;
-
-        public HelloUppercase(Hello target) {
-            this.target = target;
-        }
-
-        @Override
-        public String sayHello(String name) {
-            return target.sayHello(name).toUpperCase();
-        }
-
-        @Override
-        public String sayHi(String name) {
-            return target.sayHi(name).toUpperCase();
-        }
-
-        @Override
-        public String sayThankYou(String name) {
-            return target.sayThankYou(name).toUpperCase();
-        }
-    }
-
     @Test
-    void HelloUppercase() {
+    void simpleProxy() {
         Hello hello = new HelloUppercase(new HelloTarget());
         assertThat(hello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         assertThat(hello.sayHi("Toby")).isEqualTo("HI TOBY");
         assertThat(hello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
+    }
+
+    @Test
+    void dynamicProxy() {
+        Hello helloProxy = (Hello) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class[]{Hello.class},
+                new UppercaseHandler(new HelloTarget()));
+        assertThat(helloProxy.sayHello("toby")).isEqualTo("HELLO TOBY");
+        assertThat(helloProxy.sayHi("toby")).isEqualTo("Hi toby");
+        assertThat(helloProxy.sayThankYou("toby")).isEqualTo("Thank you toby");
     }
 
 }
