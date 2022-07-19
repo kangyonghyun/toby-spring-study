@@ -16,7 +16,6 @@ import springbook.ch5.user.dao.UserDao;
 import springbook.ch5.user.domain.Level;
 import springbook.ch5.user.domain.User;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
@@ -27,7 +26,7 @@ import static springbook.ch5.user.service.UserServiceImpl.MIN_LOGIN_FOR_SILVER;
 import static springbook.ch5.user.service.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("/jdbctemplateV4.xml")
+@ContextConfiguration("/contextV5.xml")
 class UserServiceImplTest {
 
     @Qualifier("userServiceTx")
@@ -137,49 +136,6 @@ class UserServiceImplTest {
         assertThat(mailMessages.get(1).getTo()[0]).isEqualTo(users.get(2).getEmail());
     }
 
-    private void checkUserAndLevel(User updated, String expectedID, Level expectedLevel) {
-        assertThat(updated.getId()).isEqualTo(expectedID);
-        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
-    }
-
-    private void checkLevel(User user, Level level) {
-        User findUser = userDao.get(user.getId());
-        assertThat(findUser.getLevel()).isEqualTo(level);
-    }
-
-    private void checkLevelUpgraded(User user, boolean upgraded) {
-        User findUser = userDao.get(user.getId());
-        if (upgraded) {
-            assertThat(findUser.getLevel()).isEqualTo(user.getLevel().nextLevel());
-        } else {
-            assertThat(findUser.getLevel()).isEqualTo(user.getLevel());
-        }
-    }
-
-    static class TxTestUserService extends UserServiceImpl {
-
-        private String id;
-
-        public TxTestUserService(UserDao userDao, String id) {
-            super(userDao);
-            this.id = id;
-        }
-
-        @Override
-        protected void upgradeLevel(User user) {
-            if (user.getId().equals(id)) {
-                throw new TxUserServiceException("강제 예외");
-            }
-            super.upgradeLevel(user);
-        }
-    }
-
-    static class TxUserServiceException extends RuntimeException {
-        public TxUserServiceException(String message) {
-            super(message);
-        }
-    }
-
     @Test
     void upgradeAllOrNothing() {
         for (User user : users) {
@@ -215,6 +171,44 @@ class UserServiceImplTest {
                 .isInstanceOf(TxUserServiceException.class);
 
         checkLevelUpgraded(users.get(0), false);
+    }
+
+    static class TxTestUserService extends UserServiceImpl {
+
+        private String id;
+
+        public TxTestUserService(UserDao userDao, String id) {
+            super(userDao);
+            this.id = id;
+        }
+
+        @Override
+        protected void upgradeLevel(User user) {
+            if (user.getId().equals(id)) {
+                throw new TxUserServiceException("강제 예외");
+            }
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TxUserServiceException extends RuntimeException {
+        public TxUserServiceException(String message) {
+            super(message);
+        }
+    }
+
+    private void checkUserAndLevel(User updated, String expectedID, Level expectedLevel) {
+        assertThat(updated.getId()).isEqualTo(expectedID);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
+    }
+
+    private void checkLevelUpgraded(User user, boolean upgraded) {
+        User findUser = userDao.get(user.getId());
+        if (upgraded) {
+            assertThat(findUser.getLevel()).isEqualTo(user.getLevel().nextLevel());
+        } else {
+            assertThat(findUser.getLevel()).isEqualTo(user.getLevel());
+        }
     }
 
 }
