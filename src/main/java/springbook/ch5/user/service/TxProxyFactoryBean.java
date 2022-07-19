@@ -7,16 +7,23 @@ import java.lang.reflect.Proxy;
 
 public class TxProxyFactoryBean implements FactoryBean<Object> {
 
-    private final Object target;
+    private Object target;
     private final PlatformTransactionManager transactionManager;
     private final String pattern;
     private final Class<?> serviceInterface;
 
-    public TxProxyFactoryBean(Object target, PlatformTransactionManager transactionManager, String pattern, Class<?> serviceInterface) {
-        this.target = target;
+    public TxProxyFactoryBean(PlatformTransactionManager transactionManager, String pattern, Class<?> serviceInterface) {
         this.transactionManager = transactionManager;
         this.pattern = pattern;
         this.serviceInterface = serviceInterface;
+    }
+
+    public Object getTarget() {
+        return target;
+    }
+
+    public void setTarget(Object target) {
+        this.target = target;
     }
 
     @Override

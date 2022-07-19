@@ -5,16 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.PlatformTransactionManager;
 import springbook.ch5.user.dao.UserDao;
 import springbook.ch5.user.domain.Level;
 import springbook.ch5.user.domain.User;
 
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,15 +24,11 @@ import static springbook.ch5.user.service.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD
 @ContextConfiguration("/factoryBeanContext.xml")
 class TxProxyFactoryBeanTest {
 
-    @Qualifier("userServiceTx")
     @Autowired
-    UserService userService;
+    ApplicationContext context;
 
     @Autowired
     UserDao userDao;
-
-    @Autowired
-    PlatformTransactionManager transactionManager;
 
     @Autowired
     MailSender mailSender;
@@ -51,6 +45,9 @@ class TxProxyFactoryBeanTest {
         User user4 = new User("kyh4", "yong", "test", Level.SILVER, 1, MIN_RECOMMEND_FOR_GOLD - 1);
         User user5 = new User("kyh5", "yong", "test", Level.GOLD, 100, 50);
         users = List.of(user1, user2, user3, user4, user5);
+        for (User user : users) {
+            userDao.add(user);
+        }
     }
 
     @AfterEach
@@ -59,21 +56,16 @@ class TxProxyFactoryBeanTest {
     }
 
     @Test
-    void upgradeAllOrNothing_factoryBean() {
-        for (User user : users) {
-            userDao.add(user);
-        }
-
-        UserServiceImplTest.TxTestUserService testService = new UserServiceImplTest.TxTestUserService(userDao, users.get(2).getId());
+    void upgradeAllOrNothing_factoryBean() throws Exception {
+        TxTestUserService testService = new TxTestUserService(userDao, users.get(2).getId());
         testService.setMailSender(mailSender);
 
-        UserService service = (UserService) Proxy.newProxyInstance(
-                getClass().getClassLoader(),
-                new Class[]{UserService.class},
-                new TransactionHandler(testService, transactionManager, "upgradeLevel"));
+        TxProxyFactoryBean txProxyFactoryBean = (TxProxyFactoryBean) context.getBean("&userServiceTx");
+        txProxyFactoryBean.setTarget(testService);
+        UserService service = (UserService) txProxyFactoryBean.getObject();
 
         assertThatThrownBy(service::upgradeLevels)
-                .isInstanceOf(UserServiceImplTest.TxUserServiceException.class);
+                .isInstanceOf(TxUserServiceException.class);
 
         checkLevelUpgraded(users.get(0), false);
     }
@@ -99,7 +91,7 @@ class TxProxyFactoryBeanTest {
         @Override
         protected void upgradeLevel(User user) {
             if (user.getId().equals(id)) {
-                throw new UserServiceImplTest.TxUserServiceException("강제 예외");
+                throw new TxUserServiceException("강제 예외");
             }
             super.upgradeLevel(user);
         }
