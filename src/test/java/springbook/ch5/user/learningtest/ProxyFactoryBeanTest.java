@@ -5,6 +5,8 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import springbook.ch5.user.learningtest.reflection.Hello;
 import springbook.ch5.user.learningtest.reflection.HelloTarget;
 
@@ -14,7 +16,7 @@ import java.lang.reflect.Proxy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DynamicProxyTest {
+public class ProxyFactoryBeanTest {
     
     @Test
     @DisplayName("다이내믹 프록시를 이용한 프록시 생성 테스트")
@@ -65,6 +67,24 @@ public class DynamicProxyTest {
             String ret = (String) invocation.proceed();
             return ret.toUpperCase();
         }
+    }
+
+    @Test
+    @DisplayName("스프링 다이내믹 프록시를 이용한 프록시 생성 테스트 - advice, pointcut")
+    void pointcutAdvisor() {
+        ProxyFactoryBean proxyFactoryBean = new ProxyFactoryBean();
+        proxyFactoryBean.setTarget(new HelloTarget());
+
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("sayH*");
+
+        proxyFactoryBean.addAdvisor(new DefaultPointcutAdvisor(pointcut, new UppercaseAdvice()));
+
+        Hello hello = (Hello) proxyFactoryBean.getObject();
+
+        assertThat(hello.sayHello("Toby")).isEqualTo("HELLO TOBY");
+        assertThat(hello.sayHi("Toby")).isEqualTo("HI TOBY");
+        assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank you Toby");
     }
 
 }
