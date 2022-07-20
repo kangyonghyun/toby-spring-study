@@ -15,6 +15,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import springbook.ch5.user.dao.UserDao;
 import springbook.ch5.user.domain.Level;
 import springbook.ch5.user.domain.User;
+import springbook.ch5.user.service.testservice.TxTestUserService;
+import springbook.ch5.user.service.testservice.TxUserServiceException;
 
 import java.lang.reflect.Proxy;
 import java.util.List;
@@ -171,30 +173,6 @@ class UserServiceImplTest {
                 .isInstanceOf(TxUserServiceException.class);
 
         checkLevelUpgraded(users.get(0), false);
-    }
-
-    static class TxTestUserService extends UserServiceImpl {
-
-        private String id;
-
-        public TxTestUserService(UserDao userDao, String id) {
-            super(userDao);
-            this.id = id;
-        }
-
-        @Override
-        protected void upgradeLevel(User user) {
-            if (user.getId().equals(id)) {
-                throw new TxUserServiceException("강제 예외");
-            }
-            super.upgradeLevel(user);
-        }
-    }
-
-    static class TxUserServiceException extends RuntimeException {
-        public TxUserServiceException(String message) {
-            super(message);
-        }
     }
 
     private void checkUserAndLevel(User updated, String expectedID, Level expectedLevel) {
