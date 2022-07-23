@@ -1,12 +1,11 @@
 package springbook.ch5.user.learningtest;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.NameMatchMethodPointcut;
+import springbook.ch5.user.learningtest.proxyfactorybean.UppercaseAdvice;
 import springbook.ch5.user.learningtest.reflection.Hello;
 import springbook.ch5.user.learningtest.reflection.HelloTarget;
 
@@ -59,14 +58,6 @@ public class ProxyFactoryBeanTest {
         assertThat(hello.sayHello("Toby")).isEqualTo("HELLO TOBY");
         assertThat(hello.sayHi("Toby")).isEqualTo("HI TOBY");
         assertThat(hello.sayThankYou("Toby")).isEqualTo("THANK YOU TOBY");
-    }
-
-    static class UppercaseAdvice implements MethodInterceptor {
-        @Override
-        public Object invoke(MethodInvocation invocation) throws Throwable {
-            String ret = (String) invocation.proceed();
-            return ret.toUpperCase();
-        }
     }
 
     @Test
