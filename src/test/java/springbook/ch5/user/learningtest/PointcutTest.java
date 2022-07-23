@@ -30,6 +30,10 @@ public class PointcutTest {
         classMethodPointcut.setMappedName("sayH*");
 
         checkAdvice(new HelloTarget(), classMethodPointcut, true);
+        class HelloWord extends HelloTarget{};
+        checkAdvice(new HelloWord(), classMethodPointcut, false);
+        class HelloToby extends HelloTarget{};
+        checkAdvice(new HelloToby(), classMethodPointcut, true);
     }
 
     private void checkAdvice(Object target, Pointcut pointcut, boolean isAdvice) {
@@ -48,6 +52,4 @@ public class PointcutTest {
             assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank you Toby");
         }
     }
-
-
 }
