@@ -3,9 +3,11 @@ package springbook.ch5.user.learningtest;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.NameMatchMethodPointcut;
+import springbook.ch5.user.learningtest.pointcut.Target;
 import springbook.ch5.user.learningtest.proxyfactorybean.UppercaseAdvice;
 import springbook.ch5.user.learningtest.reflection.Hello;
 import springbook.ch5.user.learningtest.reflection.HelloTarget;
@@ -52,4 +54,15 @@ public class PointcutTest {
             assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank you Toby");
         }
     }
+
+    @Test
+    void methodSignaturePointcut() throws NoSuchMethodException {
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+        pointcut.setExpression("execution(public int springbook.ch5.user.learningtest.pointcut.Target.minus(int, int) " +
+                "throws java.lang.RuntimeException)");
+        assertThat(pointcut.getClassFilter().matches(Target.class) &&
+                pointcut.getMethodMatcher().matches(Target.class.getMethod("minus", int.class, int.class), null))
+                .isTrue();
+    }
+
 }
