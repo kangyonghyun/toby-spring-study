@@ -76,10 +76,10 @@ class TransactionBeanPosterTest {
         }
     }
 
-    static class TestUserServiceImpl extends UserServiceImpl {
+    static class TestUserService extends UserServiceImpl {
         private String id = "exception";
 
-        public TestUserServiceImpl(UserDao userDao) {
+        public TestUserService(UserDao userDao) {
             super(userDao);
         }
 
