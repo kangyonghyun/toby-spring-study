@@ -6,6 +6,8 @@ import springbook.ch5.user.dao.UserDao;
 import springbook.ch5.user.domain.Level;
 import springbook.ch5.user.domain.User;
 
+import java.util.List;
+
 public class UserServiceImpl implements UserService {
 
     public static final int MIN_LOGIN_FOR_SILVER = 50;
@@ -26,6 +28,21 @@ public class UserServiceImpl implements UserService {
             user.setLevel(Level.BASIC);
         }
         userDao.add(user);
+    }
+
+    @Override
+    public User get(String id) {
+        return userDao.get(id);
+    }
+
+    @Override
+    public List<User> getAll() {
+        return userDao.getAll();
+    }
+
+    @Override
+    public void deleteAll() {
+        userDao.deleteAll();
     }
 
     @Override
