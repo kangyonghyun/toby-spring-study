@@ -22,7 +22,7 @@ import static springbook.ch5.user.service.UserServiceImpl.MIN_LOGIN_FOR_SILVER;
 import static springbook.ch5.user.service.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration("/aopContextV2.xml")
+@ContextConfiguration("/ch5Context.xml")
 class TransactionBeanPosterTest {
 
     @Autowired
@@ -38,7 +38,7 @@ class TransactionBeanPosterTest {
         User user1 = new User("kyh1", "yong", "test", Level.BASIC, MIN_LOGIN_FOR_SILVER,30);
         user1.setEmail("hmoon826@naver.com");
         User user2 = new User("kyh2", "yong", "test", Level.BASIC, MIN_LOGIN_FOR_SILVER - 1,30);
-        User user3 = new User("exception", "yong", "test", Level.SILVER, 55, MIN_RECOMMEND_FOR_GOLD);
+        User user3 = new User("kyh3_ex", "yong", "test", Level.SILVER, 55, MIN_RECOMMEND_FOR_GOLD);
         user3.setEmail("hmoon826@naver.com");
         User user4 = new User("kyh4", "yong", "test", Level.SILVER, 1, MIN_RECOMMEND_FOR_GOLD - 1);
         User user5 = new User("kyh5", "yong", "test", Level.GOLD, 100, 50);
@@ -67,6 +67,14 @@ class TransactionBeanPosterTest {
         assertThat(testUserService).isInstanceOf(Proxy.class);
     }
 
+    @Test
+    @DisplayName("readOnly 일 떄, JDBC 에 따라 write 방지, 현재 h2 db는 지원x, 에러x")
+    void readOnlyTest() {
+        testUserService.getAll();
+//        assertThatThrownBy(() -> testUserService.getAll())
+//                .isInstanceOf(TransientDataAccessResourceException.class);
+    }
+
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User findUser = userDao.get(user.getId());
         if (upgraded) {
@@ -77,7 +85,7 @@ class TransactionBeanPosterTest {
     }
 
     static class TestUserService extends UserServiceImpl {
-        private String id = "exception";
+        private String id = "kyh3_ex";
 
         public TestUserService(UserDao userDao) {
             super(userDao);
@@ -90,5 +98,13 @@ class TransactionBeanPosterTest {
             }
             super.upgradeLevel(user);
         }
+        @Override
+        public List<User> getAll() {
+            for (User user : super.getAll()) {
+                update(user);
+            }
+            return null;
+        }
     }
+
 }

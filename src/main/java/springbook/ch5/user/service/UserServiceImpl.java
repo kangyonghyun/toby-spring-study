@@ -52,6 +52,11 @@ public class UserServiceImpl implements UserService {
                 .forEach(this::upgradeLevel);
     }
 
+    @Override
+    public void update(User user) {
+        userDao.update(user);
+    }
+
     private boolean canUpgradeLevel(User user) {
         Level level = user.getLevel();
         if (level == Level.BASIC){
