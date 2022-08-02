@@ -1,5 +1,6 @@
 package springbook.ch5.user.learningtest;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,12 +11,14 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import springbook.ch5.user.domain.Level;
 import springbook.ch5.user.domain.User;
 import springbook.ch5.user.service.UserService;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static springbook.ch5.user.service.UserServiceImpl.MIN_LOGIN_FOR_SILVER;
 import static springbook.ch5.user.service.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 
@@ -53,6 +56,8 @@ public class RollbackTest {
         userService.deleteAll();
         userService.save(users.get(0));
         userService.save(users.get(1));
+        assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
+        assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
     }
 
     @Test
@@ -60,6 +65,7 @@ public class RollbackTest {
     @Transactional(readOnly = true)
     void readOnlyTest() {
         userService.deleteAll();
+        assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isTrue();
     }
 
     @Test
