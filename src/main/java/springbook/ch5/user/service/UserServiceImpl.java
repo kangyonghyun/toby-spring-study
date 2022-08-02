@@ -57,6 +57,11 @@ public class UserServiceImpl implements UserService {
         userDao.update(user);
     }
 
+    @Override
+    public int getCount() {
+        return userDao.getCount();
+    }
+
     private boolean canUpgradeLevel(User user) {
         Level level = user.getLevel();
         if (level == Level.BASIC){

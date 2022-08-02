@@ -15,4 +15,6 @@ public interface UserService {
     void deleteAll();
     void upgradeLevels();
     void update(User user);
+
+    int getCount();
 }
