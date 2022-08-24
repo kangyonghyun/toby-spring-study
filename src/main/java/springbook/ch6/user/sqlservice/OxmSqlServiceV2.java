@@ -1,5 +1,7 @@
 package springbook.ch6.user.sqlservice;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.oxm.Unmarshaller;
 import springbook.ch6.user.dao.UserDao;
 import springbook.ch6.user.service.SqlRetrievalFailureException;
@@ -25,8 +27,8 @@ public class OxmSqlServiceV2 implements SqlService {
         this.oxmSqlReader.setUnmarshaller(unmarshaller);
     }
 
-    public void setSqlmapFile(String sqlmapFile) {
-        this.oxmSqlReader.setSqlmapFile(sqlmapFile);
+    public void setSqlmap(Resource sqlmap) {
+        this.oxmSqlReader.setSqlmap(sqlmap);
     }
 
     @PostConstruct
@@ -43,28 +45,28 @@ public class OxmSqlServiceV2 implements SqlService {
     }
 
     private class OxmSqlReader implements SqlReader {
+
+        private Resource sqlmap = new ClassPathResource("/sqlmap2.xml", UserDao.class);
         private Unmarshaller unmarshaller;
 
-        private final static String DEFAULT_SQLMAP_FILE = "/sqlmap2.xml";
-        private String sqlmapFile = DEFAULT_SQLMAP_FILE;
+        public void setSqlmap(Resource sqlmap) {
+            this.sqlmap = sqlmap;
+        }
 
         public void setUnmarshaller(Unmarshaller unmarshaller) {
             this.unmarshaller = unmarshaller;
         }
 
-        public void setSqlmapFile(String sqlmapFile) {
-            this.sqlmapFile = sqlmapFile;
-        }
         @Override
         public void read(SqlRegistry sqlRegistry) {
             try {
-                StreamSource source = new StreamSource(UserDao.class.getResourceAsStream(this.sqlmapFile));
+                StreamSource source = new StreamSource(sqlmap.getInputStream());
                 Sqlmap sqlmap = (Sqlmap) this.unmarshaller.unmarshal(source);
                 for (SqlType sql : sqlmap.getSql()) {
                     sqlRegistry.registerSql(sql.getKey(), sql.getValue());
                 }
             } catch (IOException e) {
-                throw new IllegalArgumentException(this.sqlmapFile + " 을 가져올 수 없습니다", e);
+                throw new IllegalArgumentException(this.sqlmap + " 을 가져올 수 없습니다", e);
             }
         }
     }
