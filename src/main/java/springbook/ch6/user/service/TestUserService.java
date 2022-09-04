@@ -1,13 +1,17 @@
 package springbook.ch6.user.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import springbook.ch6.user.dao.UserDao;
 import springbook.ch6.user.domain.User;
 
 import java.util.List;
 
+@Service
 public class TestUserService extends UserServiceImpl {
     private String id = "kyh3_ex";
 
+    @Autowired
     public TestUserService(UserDao userDao) {
         super(userDao);
     }

@@ -1,13 +1,16 @@
 package springbook.ch6.user.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.stereotype.Service;
 import springbook.ch6.user.dao.UserDao;
 import springbook.ch6.user.domain.Level;
 import springbook.ch6.user.domain.User;
 
 import java.util.List;
 
+@Service
 public class UserServiceImpl implements UserService {
 
     public static final int MIN_LOGIN_FOR_SILVER = 50;
@@ -15,9 +18,11 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private MailSender mailSender;
 
+    @Autowired
     public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
     }
+    @Autowired
     public void setMailSender(MailSender mailSender) {
         this.mailSender = mailSender;
     }

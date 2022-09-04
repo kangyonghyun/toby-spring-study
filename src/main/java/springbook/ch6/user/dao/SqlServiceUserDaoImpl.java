@@ -1,7 +1,10 @@
 package springbook.ch6.user.dao;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import springbook.ch6.user.domain.Level;
 import springbook.ch6.user.domain.User;
 import springbook.ch6.user.sqlservice.SqlService;
@@ -9,15 +12,19 @@ import springbook.ch6.user.sqlservice.SqlService;
 import javax.sql.DataSource;
 import java.util.List;
 
+@Repository
 public class SqlServiceUserDaoImpl implements UserDao {
 
-    SqlService sqlService;
     private final JdbcTemplate jdbcTemplate;
 
+    private SqlService sqlService;
+
+    @Autowired
     public SqlServiceUserDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    @Autowired
     public void setSqlService(SqlService sqlService) {
         this.sqlService = sqlService;
     }

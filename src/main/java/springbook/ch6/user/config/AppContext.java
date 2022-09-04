@@ -2,10 +2,10 @@ package springbook.ch6.user.config;
 
 import org.h2.Driver;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -15,17 +15,23 @@ import org.springframework.oxm.Unmarshaller;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import springbook.ch6.user.dao.SqlServiceUserDaoImpl;
 import springbook.ch6.user.dao.UserDao;
-import springbook.ch6.user.service.*;
-import springbook.ch6.user.sqlservice.*;
+import springbook.ch6.user.service.DummyMailSender;
+import springbook.ch6.user.service.TestUserService;
+import springbook.ch6.user.service.UserService;
+import springbook.ch6.user.service.UserServiceImpl;
+import springbook.ch6.user.sqlservice.EmbeddedDbSqlRegistry;
+import springbook.ch6.user.sqlservice.OxmSqlServiceV2;
+import springbook.ch6.user.sqlservice.SqlRegistry;
+import springbook.ch6.user.sqlservice.SqlService;
 
 import javax.sql.DataSource;
 
-//@Configuration
+@Configuration
 @EnableTransactionManagement
+@Import({SqlServiceContext.class, TestAppContext.class, ProductionAppContext.class})
 @ComponentScan(basePackages = "springbook.ch6")
-public class TestApplicationContext {
+public class AppContext {
     /**
      * DB 연결과 트랜잭션
      */
@@ -38,13 +44,14 @@ public class TestApplicationContext {
         dataSource.setPassword("");
         return dataSource;
     }
+
     @Bean
     public PlatformTransactionManager transactionManager() {
         return new DataSourceTransactionManager(dataSource());
     }
 
     /**
-     * 애플리케이션 로직 & 테스트
+     * 애플리케이션 로직
      */
     @Autowired
     UserDao userDao;
@@ -52,53 +59,6 @@ public class TestApplicationContext {
     @Bean
     public UserService userService() {
         UserServiceImpl userService = new UserServiceImpl(this.userDao);
-        userService.setMailSender(mailSender());
         return userService;
-    }
-
-    @Bean
-    public UserService testUserService() {
-        TestUserService testService = new TestUserService(this.userDao);
-        testService.setMailSender(mailSender());
-        return testService;
-    }
-
-    @Bean
-    public MailSender mailSender() {
-        return new DummyMailSender();
-    }
-
-    /**
-     * SQL 서비스
-     */
-    @Bean
-    public SqlService sqlService() {
-        OxmSqlServiceV2 sqlService = new OxmSqlServiceV2();
-        sqlService.setSqlRegistry(sqlRegistry());
-        sqlService.setUnmarshaller(unmarshaller());
-        return sqlService;
-    }
-
-    @Bean
-    public SqlRegistry sqlRegistry() {
-        EmbeddedDbSqlRegistry sqlRegistry = new EmbeddedDbSqlRegistry();
-        sqlRegistry.setDataSource(embeddedDatabase());
-        return sqlRegistry;
-    }
-
-    @Bean
-    public Unmarshaller unmarshaller() {
-        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setContextPath("springbook.ch6.user.sqlservice.jaxb");
-        return marshaller;
-    }
-
-    @Bean
-    public DataSource embeddedDatabase() {
-        return new EmbeddedDatabaseBuilder()
-                .setName("embeddedDatabase")
-                .setType(EmbeddedDatabaseType.H2)
-                .addScript("/schema.sql")
-                .build();
     }
 }
