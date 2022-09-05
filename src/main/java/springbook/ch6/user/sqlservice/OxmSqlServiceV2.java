@@ -46,7 +46,7 @@ public class OxmSqlServiceV2 implements SqlService {
 
     private class OxmSqlReader implements SqlReader {
 
-        private Resource sqlmap = new ClassPathResource("/sqlmap2.xml", UserDao.class);
+        private Resource sqlmap;
         private Unmarshaller unmarshaller;
 
         public void setSqlmap(Resource sqlmap) {

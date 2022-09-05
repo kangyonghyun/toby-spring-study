@@ -3,7 +3,8 @@ package springbook.ch6.user.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
-import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.mail.MailSender;
@@ -22,9 +23,9 @@ import java.sql.Driver;
 @Configuration
 @EnableTransactionManagement
 @ComponentScan(basePackages = "springbook.ch6")
-@Import(SqlServiceContext.class)
+@EnableSqlService
 @PropertySource("database.properties")
-public class AppContextV3 {
+public class AppContextV4 implements SqlMapConfig {
     /**
      * DB 연결과 트랜잭션
      */
@@ -36,6 +37,11 @@ public class AppContextV3 {
     String username;
     @Value("${db.password}")
     String password;
+
+    @Override
+    public Resource getSqlMapResource() {
+        return new ClassPathResource("/sqlmap2.xml", UserDao.class);
+    }
 
     @Bean
     public DataSource dataSource() {
@@ -62,11 +68,6 @@ public class AppContextV3 {
     public UserService userService() {
         UserServiceImpl userService = new UserServiceImpl(this.userDao);
         return userService;
-    }
-
-    @Bean
-    public SqlMapConfig sqlMapConfig() {
-        return new UserSqlMapConfig();
     }
 
     @Profile("production")
